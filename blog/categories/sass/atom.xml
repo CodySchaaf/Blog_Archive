@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Coding With Cody]]></title>
-  <link href="http://CodySchaaf.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: SASS | Coding With Cody]]></title>
+  <link href="http://CodySchaaf.github.io/blog/categories/sass/atom.xml" rel="self"/>
   <link href="http://CodySchaaf.github.io/"/>
   <updated>2014-05-12T13:09:20-07:00</updated>
   <id>http://CodySchaaf.github.io/</id>
