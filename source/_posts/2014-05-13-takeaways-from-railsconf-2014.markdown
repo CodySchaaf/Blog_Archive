@@ -208,7 +208,7 @@ As you can see last_subscription tries to find your last subscription for you,
 but when it fails it returns a new instance of NullSubscription. Then when `last_subscription.name`
 is called, we get a `'none'` returned if it dosen't exist, or `'Monthly Subscription'` if it does.
 
-``` ruby mark:3,10,21
+``` ruby 
 
 users[user.name] = {
   name: last_subscription.name, # => 'none' or Monthly Subscription
