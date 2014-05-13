@@ -4,7 +4,7 @@
   <title><![CDATA[Coding With Cody]]></title>
   <link href="http://CodySchaaf.github.io/atom.xml" rel="self"/>
   <link href="http://CodySchaaf.github.io/"/>
-  <updated>2014-05-12T20:58:23-07:00</updated>
+  <updated>2014-05-13T12:20:31-07:00</updated>
   <id>http://CodySchaaf.github.io/</id>
   <author>
     <name><![CDATA[Cody Schaaf]]></name>
@@ -12,6 +12,872 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Takeaways From RailsConf 2014]]></title>
+    <link href="http://CodySchaaf.github.io/blog/2014/05/13/takeaways-from-railsconf-2014/"/>
+    <updated>2014-05-13T13:27:11-07:00</updated>
+    <id>http://CodySchaaf.github.io/blog/2014/05/13/takeaways-from-railsconf-2014</id>
+    <content type="html"><![CDATA[<p>Once everyone got passed the &lsquo;The Death To TDD&rsquo; hysteria, this years big
+most influential talks all seemed to focus heavily on refactoring. This was
+my first Rails conference, and while I have alway attempted to write maintainable
+and clean code, I was always a little gun-shy when it came to massive refactoring.</p>
+
+<p>Starting a little simpler, one of my favorite talks was actually a workshop
+on day one. It was with <a href="http://tutecosta.com/">Tute Costa</a>, where he took us
+through some short examples of some really chaotic code, and after giving us
+a few pointers set us loose on refactoring it.</p>
+
+<h2>Taming the Flow of Control</h2>
+
+<p>We started out with one of my favorite refactoring techniques, mostly because
+it is so simple and the least disrupting of the refactoring techniques. This is
+the code he gave us:</p>
+
+<figure class='code'><figcaption><span>1-intention-revealing-method</span><a href='https://github.com/tute/refactoring-workshop/blob/master/1-intention-revealing-method/app.rb'>Link To Full Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ProjectsController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="c1"># When user is admitted at least a week ago we show it&#39;s active projects</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">current_user</span> <span class="o">&amp;&amp;</span> <span class="n">current_user</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&lt;</span> <span class="p">(</span><span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="mi">7</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+</span><span class='line'>      <span class="vi">@projects</span> <span class="o">=</span> <span class="n">current_user</span><span class="o">.</span><span class="n">active_projects</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># If not admitted we show some featured projects, and set a marketing flash</span>
+</span><span class='line'>    <span class="c1"># message when user is new</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">current_user</span> <span class="o">&amp;&amp;</span> <span class="n">current_user</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&gt;</span> <span class="p">(</span><span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="mi">7</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+</span><span class='line'>        <span class="vi">@flash_msg</span> <span class="o">=</span> <span class="s1">&#39;Sign up for having your own projects, and see promo ones!&#39;</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="vi">@projects</span> <span class="o">=</span> <span class="no">Project</span><span class="o">.</span><span class="n">featured</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And told us that a simple technique he uses is to just take the comment, and
+convert it into the method name that is called by the if statement.</p>
+
+<figure class='code'><figcaption><span>My Revision</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ProjectsController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user_created_more_than_a_week_ago?</span>
+</span><span class='line'>      <span class="vi">@projects</span> <span class="o">=</span> <span class="n">current_user</span><span class="o">.</span><span class="n">active_projects</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="vi">@flash_msg</span> <span class="o">=</span> <span class="s1">&#39;Sign up for having your own projects, and see promo ones!&#39;</span>
+</span><span class='line'>      <span class="vi">@projects</span> <span class="o">=</span> <span class="no">Project</span><span class="o">.</span><span class="n">featured</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">user_created_more_than_a_week_ago?</span>
+</span><span class='line'>    <span class="n">current_user</span> <span class="o">&amp;&amp;</span> <span class="n">current_user</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&lt;</span>  <span class="n">weeks_ago</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">weeks_ago</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">7</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see the first long cryptic if statement was easily reduced to a much
+more readable sentence-like method. Further more through this process it became
+that the nested if check wasn&rsquo;t even needed.</p>
+
+<h2>Polymorphism at its Finest</h2>
+
+<p>I had never used polymorphism quite like this before. Instead of constantly checking
+the the object we are dealing with can respond to a method, ensured that all
+object at this point in the code could respond to the method. Now when I put
+it like that it sounds so obvious, I mean isn&rsquo;t that sort of the founding principals
+of polymorphism? But what about when we don&rsquo;t find the object we are looking for.
+Why shouldn&rsquo;t the same concept apply here. This is the idea that was presented to
+use before we started to takle this next part.</p>
+
+<figure class='code'><figcaption><span>2-special-case-objects</span><a href='https://github.com/tute/refactoring-workshop/blob/master/2-special-case-objects/app.rb'>Link To Full Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">StatusReportJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="no">User</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">users</span><span class="o">[</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">name</span><span class="p">:</span> <span class="n">last_name</span><span class="p">(</span><span class="n">user</span><span class="p">),</span>
+</span><span class='line'>        <span class="ss">status</span><span class="p">:</span> <span class="n">last_status</span><span class="p">(</span><span class="n">user</span><span class="p">),</span>
+</span><span class='line'>        <span class="n">trial_days</span><span class="p">:</span> <span class="n">last_trial_days</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">users</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">last_name</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span> <span class="o">&amp;&amp;</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:name</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="s1">&#39;none&#39;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">last_status</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span> <span class="o">&amp;&amp;</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:status</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">status</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="s1">&#39;-&#39;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">last_trial_days</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span> <span class="o">&amp;&amp;</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:trial_days</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">trial_days</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="s1">&#39;-&#39;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The basic idea behind this refactoring was to have a subscription object in preform
+that would always be able to respond to the methods called on it. So when
+no subscription would have been returned, instead a nullSubscription which respondes
+to these methods is returned. Transforming all of that code to this:</p>
+
+<figure class='code'><figcaption><span>My Revision</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">StatusReportJob</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="no">User</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">last_subscription</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span>
+</span><span class='line'>      <span class="n">users</span><span class="o">[</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">name</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+</span><span class='line'>        <span class="ss">status</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+</span><span class='line'>        <span class="n">trial_days</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">trial_days</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">users</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>with a subscription, and nullSubscription defined like this:</p>
+
+<figure class='code'><figcaption><span>My Revision Classes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Subscription</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">name</span>
+</span><span class='line'>    <span class="s1">&#39;Monthly Subscription&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">status</span>
+</span><span class='line'>    <span class="s1">&#39;active&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">trial_days</span>
+</span><span class='line'>    <span class="mi">14</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">cancel</span>
+</span><span class='line'>    <span class="c1"># telling payment gateway...</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">last_subscription</span>
+</span><span class='line'>    <span class="n">subscriptions</span><span class="o">.</span><span class="n">last</span> <span class="o">||</span> <span class="no">NullSubscription</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">NullSubscription</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">cancel</span>
+</span><span class='line'>    <span class="kp">false</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">name</span>
+</span><span class='line'>    <span class="s1">&#39;none&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">status</span>
+</span><span class='line'>    <span class="s1">&#39;-&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">trial_days</span>
+</span><span class='line'>    <span class="s1">&#39;-&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see last_subscription tries to find your last subscription for you,
+but when it fails it returns a new instance of NullSubscription. Then when <code>last_subscription.name</code>
+is called, we get a <code>'none'</code> returned if it dosen&rsquo;t exist, or <code>'Monthly Subscription'</code> if it does.</p>
+
+<figure class='code'><figcaption><span>mark:3,10,21</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">users</span><span class="o">[</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nb">name</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="c1"># =&gt; &#39;none&#39; or Monthly Subscription</span>
+</span><span class='line'>  <span class="ss">status</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">trial_days</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">trial_days</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Subscription</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">name</span>
+</span><span class='line'>    <span class="s1">&#39;Monthly Subscription&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">#...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">NullSubscription</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">name</span>
+</span><span class='line'>    <span class="s1">&#39;none&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">#...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>We Can Rebuild Him, We Have the Technology</h2>
+
+<p>Now for some truly horrific code. This is the code you come up with when you are
+wrestling to get something to work and you just keep throwing lines at it hoping
+something will help. Now it&rsquo;s time to refactor it and make it look like it works as well.</p>
+
+<figure class='code'><figcaption><span>3-replace-method-with-method-object</span><a href='https://github.com/tute/refactoring-workshop/blob/master/3-replace-method-with-method-object/app.rb'>Full Source Code</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># 1. Create a class with same initialization arguments as BIGMETHOD</span>
+</span><span class='line'><span class="c1"># 2. Copy &amp; Paste the method&#39;s body in the new class, with no arguments</span>
+</span><span class='line'><span class="c1"># 3. Replace original method with a call to the new class</span>
+</span><span class='line'><span class="c1"># 4. Apply &quot;Intention Revealing Method&quot; to the new class. Woot!</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Formatter</span>
+</span><span class='line'>  <span class="c1"># More code, methods, and stuff in this big class</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">row_per_day_format</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span> <span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r:ISO-8859-1&#39;</span>
+</span><span class='line'>    <span class="c1"># hash[NivelConsistencia][date] = [[value, status]]</span>
+</span><span class='line'>    <span class="nb">hash</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;1&#39;</span> <span class="o">=&gt;</span> <span class="p">{},</span> <span class="s1">&#39;2&#39;</span> <span class="o">=&gt;</span> <span class="p">{}</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">dates</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="n">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span><span class='line'>    <span class="no">CSV</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">col_sep</span><span class="p">:</span> <span class="s1">&#39;;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">next</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>      <span class="k">next</span> <span class="k">if</span> <span class="n">row</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=~</span> <span class="sr">/^\/\//</span>
+</span><span class='line'>      <span class="n">date</span> <span class="o">=</span> <span class="no">Date</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">row</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">(</span><span class="mi">13</span><span class="o">.</span><span class="n">.</span><span class="mi">43</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">measurement_date</span> <span class="o">=</span> <span class="n">date</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">13</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1"># If NumDiasDeChuva is empty it means no data</span>
+</span><span class='line'>        <span class="n">value</span>  <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="mi">7</span><span class="o">].</span><span class="n">nil?</span> <span class="p">?</span> <span class="o">-</span><span class="mi">99</span><span class="o">.</span><span class="mi">9</span> <span class="p">:</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">status</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">31</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">hash_value</span> <span class="o">=</span> <span class="o">[</span><span class="n">value</span><span class="p">,</span> <span class="n">status</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">dates</span> <span class="o">&lt;&lt;</span> <span class="n">measurement_date</span>
+</span><span class='line'>        <span class="nb">hash</span><span class="o">[</span><span class="n">row</span><span class="o">[</span><span class="mi">1</span><span class="o">]][</span><span class="n">measurement_date</span><span class="o">]</span> <span class="o">=</span> <span class="n">hash_value</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">dates</span><span class="o">.</span><span class="n">uniq</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">date</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">!</span><span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span>
+</span><span class='line'>        <span class="c1"># Only &#39;bruto&#39; (good)</span>
+</span><span class='line'>        <span class="n">value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">date</span><span class="si">}</span><span class="se">\t</span><span class="si">#{</span><span class="n">value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">}</span><span class="se">\t</span><span class="si">#{</span><span class="n">value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class='line'>      <span class="k">elsif</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span>
+</span><span class='line'>        <span class="c1"># Only &#39;consistido&#39; (kind of good)</span>
+</span><span class='line'>        <span class="n">value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">date</span><span class="si">}</span><span class="se">\t</span><span class="si">#{</span><span class="n">value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">}</span><span class="se">\t</span><span class="si">#{</span><span class="n">value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="c1"># &#39;bruto&#39; y &#39;consistido&#39; (has new and old data)</span>
+</span><span class='line'>        <span class="n">old_value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">new_value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">date</span><span class="si">}</span><span class="se">\t</span><span class="si">#{</span><span class="n">new_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">}</span><span class="se">\t</span><span class="si">#{</span><span class="n">old_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="si">}</span><span class="se">\t</span><span class="si">#{</span><span class="n">old_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">str</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># More code, methods, and stuff in this big class</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the idea here was to dismantel this method into its components, I gave it
+my best but his solution was a little more elagent so I&rsquo;ve decided to use his instead.</p>
+
+<figure class='code'><figcaption><span>Tute Costa&#8217;s Solution</span><a href='https://github.com/tute/refactoring-workshop/blob/tute-solutions/3-replace-method-with-method-object/app-solution-tute.rb'>Full Source Code</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">FormatAtoB</span>
+</span><span class='line'>  <span class="no">SIN_DATOS</span> <span class="o">=</span> <span class="o">-</span><span class="mi">99</span><span class="o">.</span><span class="mi">9</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@file_name</span> <span class="o">=</span> <span class="n">file_name</span>
+</span><span class='line'>    <span class="vi">@hash</span>  <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;1&#39;</span> <span class="o">=&gt;</span> <span class="p">{},</span> <span class="s1">&#39;2&#39;</span> <span class="o">=&gt;</span> <span class="p">{}</span> <span class="p">}</span>
+</span><span class='line'>    <span class="vi">@dates</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform</span>
+</span><span class='line'>    <span class="n">load_format_a_file</span>
+</span><span class='line'>    <span class="n">format_data_to_b</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">load_format_a_file</span>
+</span><span class='line'>    <span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span> <span class="vi">@file_name</span><span class="p">,</span> <span class="s1">&#39;r:ISO-8859-1&#39;</span>
+</span><span class='line'>    <span class="no">CSV</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">col_sep</span><span class="p">:</span> <span class="s1">&#39;;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">next</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">empty?</span> <span class="o">||</span> <span class="n">row</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=~</span> <span class="sr">/^\/\//</span>
+</span><span class='line'>      <span class="n">load_month_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">format_data_to_b</span>
+</span><span class='line'>    <span class="n">formatted_rows</span> <span class="o">=</span> <span class="vi">@dates</span><span class="o">.</span><span class="n">uniq</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">date</span><span class="o">|</span> <span class="n">formatted_row_for</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>    <span class="s2">&quot;</span><span class="si">#{</span><span class="n">formatted_rows</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">formatted_row_for</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">old_value</span> <span class="o">=</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</span><span class='line'>    <span class="n">new_value</span> <span class="o">=</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">dato_bruto?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">day</span> <span class="o">=</span> <span class="o">[</span><span class="n">date</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]]</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">dato_consistido?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">day</span> <span class="o">=</span> <span class="o">[</span><span class="n">date</span><span class="p">,</span> <span class="n">new_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">new_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]]</span>
+</span><span class='line'>    <span class="k">else</span> <span class="c1"># &#39;bruto&#39; y &#39;consistido&#39;</span>
+</span><span class='line'>      <span class="n">day</span> <span class="o">=</span> <span class="o">[</span><span class="n">date</span><span class="p">,</span> <span class="n">new_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">day</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">load_month_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@beginning_of_month</span> <span class="o">=</span> <span class="no">Date</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">row</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">(</span><span class="mi">13</span><span class="o">.</span><span class="n">.</span><span class="mi">43</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">load_day_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">load_day_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">nivel_consistencia</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="n">date</span> <span class="o">=</span> <span class="vi">@beginning_of_month</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">13</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@dates</span> <span class="o">&lt;&lt;</span> <span class="n">date</span>
+</span><span class='line'>    <span class="vi">@hash</span><span class="o">[</span><span class="n">nivel_consistencia</span><span class="o">][</span><span class="n">date</span><span class="o">]</span> <span class="o">=</span> <span class="n">datos</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># If NumDiasDeChuva is empty it means no data</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">datos</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">data</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="mi">7</span><span class="o">].</span><span class="n">nil?</span> <span class="p">?</span> <span class="no">SIN_DATOS</span> <span class="p">:</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+</span><span class='line'>    <span class="n">status</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">31</span><span class="o">]</span>
+</span><span class='line'>    <span class="o">[</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">dato_bruto?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">dato_consistido?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Formatter</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">row_per_day_format</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">FormatAtoB</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span><span class="o">.</span><span class="n">perform</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There could still be a lot more done here, I mean are you really ever done refactoring?
+But I think this grasps the idea, where you want to make use of instance variables
+to allow for the method to be broken up without having to pass huge amounts of
+variables. It is useful to find the variables that are inherent to the class itself.
+Make those your instance variables. From there your goal is simpler, you need to
+basically construct these variables to some final product. There is still a lot going
+on here, but it definitely looks slightly less overwhelming when looking at manageable chuncks.</p>
+
+<h2>Getting the User Into Shape</h2>
+
+<p>For this last part, I need you to imagine a massive user model. This refactoring
+on its own may seem like it is making it more complicated, but when you realize
+you are moving all of this code out of a bloated class it makes more sense.</p>
+
+<figure class='code'><figcaption><span>4-service-objects</span><a href='https://github.com/tute/refactoring-workshop/blob/master/4-service-objects/app.rb'>Full Source Code</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:subscription</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># validations</span>
+</span><span class='line'>  <span class="c1"># callbacks</span>
+</span><span class='line'>  <span class="c1"># authentication logic</span>
+</span><span class='line'>  <span class="c1"># notifications logic</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">subscribe</span>
+</span><span class='line'>    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">{</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">subscribe</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="ss">:monthly_plan</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">api_result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">unsubscribe</span>
+</span><span class='line'>    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">{</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">unsubscribe</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">api_result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Try API connection, trap and log it on failures</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">try_api</span>
+</span><span class='line'>    <span class="k">yield</span>
+</span><span class='line'>  <span class="k">rescue</span> <span class="no">SystemCallError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</span><span class='line'>    <span class="c1"># log API connection failure</span>
+</span><span class='line'>    <span class="ss">:network_error</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Other private methods</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now all of this code really should be part of some subscription class, but since it
+depends on the user it seems to have just been crammed into this code.  It doesn&rsquo;t
+look like much, but remember this is a user model that would have hundred of other
+lines of code, likely with more examples of logic that needs to be moved. To move this
+code out though you are going to need pass along the user. Originally I wanted to make
+a instance variable called user and pass him into the initialization, but I found out
+that there is a slightly sexier way to go about it through the use of a struct.</p>
+
+<figure class='code'><figcaption><span>Tute Costa&#8217;s Solution</span><a href='https://github.com/tute/refactoring-workshop/blob/tute-solutions/4-service-objects/app-solution-tute.rb'>Full Source Code</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SubscriptionService</span> <span class="o">&lt;</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:user</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">subscribe</span>
+</span><span class='line'>    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">{</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">subscribe</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="ss">:monthly_plan</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">api_result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">unsubscribe</span>
+</span><span class='line'>    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">{</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">unsubscribe</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">api_result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Try API connection, trap and log it on failures</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">try_api</span>
+</span><span class='line'>    <span class="k">yield</span>
+</span><span class='line'>  <span class="k">rescue</span> <span class="no">SystemCallError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</span><span class='line'>    <span class="c1"># log API connection failure</span>
+</span><span class='line'>    <span class="ss">:network_error</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:subscription</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Podría ser delegate :subscribe, :unsubscribe, to: :subscription_service</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">subscribe</span>
+</span><span class='line'>    <span class="n">subscription_service</span><span class="o">.</span><span class="n">subscribe</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">unsubscribe</span>
+</span><span class='line'>    <span class="n">subscription_service</span><span class="o">.</span><span class="n">unsubscribe</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">subscription_service</span>
+</span><span class='line'>    <span class="vi">@subscription_service</span> <span class="o">||=</span> <span class="no">SubscriptionService</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This allows us to simply pass the user into <code>SubscriptionService.new(self)</code> and
+from there we can call user instead of self. This really cleans up the user model.
+Also we make sure to call subscription_service were a new instance is created only
+if it is needed.</p>
+
+<h2>Summary</h2>
+
+<p>In summary the biggest favor you can do yourself before refactoring is to make sure
+you have a comprehensive test suit. Once that is in place you are able to freely change
+code without having to worry about secretly breaking functionality. To give this a try
+for yourself visit fork the repository here <code>https://github.com/tute/refactoring-workshop</code>,
+and refactor away. Run the tests suit to ensure you didn&rsquo;t break anything. Good luck, and happy
+coding.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Weather-Icons-Rails: My First Ruby Gem]]></title>
@@ -57,15 +923,6 @@ any suggestions on improving it. Still a work in progress, and will hopefully
 finish the test suit next. You can download the gem at
 <a href="http://rubygems.org/gems/weather-icons-rails">Weather Icons Rails</a>,
 and see the source code over on <a href="https://github.com/CodySchaaf/weather-icons-rails">GitHub</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Takeaways From Railsconf 2014]]></title>
-    <link href="http://CodySchaaf.github.io/blog/2014/05/12/takeaways-from-railsconf-2014/"/>
-    <updated>2014-05-12T00:00:00-07:00</updated>
-    <id>http://CodySchaaf.github.io/blog/2014/05/12/takeaways-from-railsconf-2014</id>
-    <content type="html"><![CDATA[
 ]]></content>
   </entry>
   

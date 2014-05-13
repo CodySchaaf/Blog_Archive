@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Coding With Cody</title>
+  <title>Takeaways From RailsConf 2014 - Coding With Cody</title>
   <meta name="author" content="Cody Schaaf">
 
   
@@ -19,7 +19,7 @@ most influential talks all seemed to focus heavily on &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://CodySchaaf.github.io">
+  <link rel="canonical" href="http://CodySchaaf.github.io/blog/2014/05/13/takeaways-from-railsconf-2014">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Coding With Cody" type="application/atom+xml">
@@ -64,15 +64,12 @@ most influential talks all seemed to focus heavily on &hellip;">
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/05/13/takeaways-from-railsconf-2014/">Takeaways From RailsConf 2014</a></h1>
+      <h1 class="entry-title">Takeaways From RailsConf 2014</h1>
     
     
       <p class="meta">
@@ -95,7 +92,7 @@ most influential talks all seemed to focus heavily on &hellip;">
   </header>
 
 
-  <div class="entry-content"><p>Once everyone got passed the &lsquo;The Death To TDD&rsquo; hysteria, this years big
+<div class="entry-content"><p>Once everyone got passed the &lsquo;The Death To TDD&rsquo; hysteria, this years big
 most influential talks all seemed to focus heavily on refactoring. This was
 my first Rails conference, and while I have alway attempted to write maintainable
 and clean code, I was always a little gun-shy when it came to massive refactoring.</p>
@@ -954,22 +951,16 @@ for yourself visit fork the repository here <code>https://github.com/tute/refact
 and refactor away. Run the tests suit to ensure you didn&rsquo;t break anything. Good luck, and happy
 coding.</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/12/weather-icons-rails-my-first-ruby-gem/">Weather-Icons-Rails: My First Ruby Gem</a></h1>
-    
-    
-      <p class="meta">
-        
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Cody Schaaf</span></span>
+
+      
 
 
 
@@ -981,65 +972,32 @@ coding.</p>
   
 
 
-<time datetime="2014-05-12T11:58:32-07:00" pubdate data-updated="true">May 12<span>th</span>, 2014</time>
-        
-      </p>
+<time datetime="2014-05-13T13:27:11-07:00" pubdate data-updated="true">May 13<span>th</span>, 2014</time>
+      
+
+
+    </p>
     
-  </header>
-
-
-  <div class="entry-content"><p>First I want to give a huge thanks to <a href="http://www.twitter.com/artill">Lukas Bischoff</a>
-for designing this font, and <a href="http://www.helloerik.com/">Erik Flowers</a> who
-originally added the css to turn it into a web font, and finally the
-<a href="https://github.com/FortAwesome/font-awesome-sass">Font Awesome Sass</a> gem that
-I used as a template for <a href="http://rubygems.org/gems/weather-icons-rails">Weather Icons Rails</a>.</p>
-
-<p>I originally started this project because of the lack of an easy to use web
-based font that included weather icons. I had been working on my current
-project <a href="http://earlyword.herokuapp.com/">EarlyWord</a>, and was hoping to use
-Font Awesome to add icons to my weather app. Sadly the only weather font they
-had was the download from the cloud icon. This wasn&rsquo;t going to be of any use if I
-hoped to give the user an immediate sense if the weather through a small image.
-We wouldn&rsquo;t want users to think global warming had begun to cause data to fall
-from the skies&hellip;I was then fortunate enough to find Erik Flowers work, which is
-composed of some really <em>Awesome</em> fonts.</p>
-
-<p>From here I ran into two problems. One was that my project didn&rsquo;t use Less, but
-instead used Sass. This was easily solvable by converting it to pure CSS and just
-including that into the assets file. This prevented me from using any dynamic
-coloring, and would make adding any special calculations for affects on the
-icons difficult. The second problem was the much larger amount of code that was needed
-to support pure CSS, especially once all of the mix-ins were removed and all the dynamic
-variables set to their static values. Instead I decided to convert it into Sass
-to work with the rest of my project.</p>
-
-<p>At this point I got carried away and decided to check out Font Awesome Sass,
-and started working on a replica of it using these new fonts. It was surprisingly
-simple, especially once I discovered all of the commands rake provides to help with
-gem manufacture. I added a bunch of ruby helper methods, and modularized the CSS into
-sperate files. Using Sass I was able to create much more maintainable code using
-variables instead of hard coding all the CSS class prefixes.</p>
-
-<p>After converting everything to Sass, and still not being completed satisfied with
-all of the code that now cluttered my assets folder, I packaged it into its own
-gem. Now I hope that others will find it as useful as I did. I would love to hear
-any suggestions on improving it. Still a work in progress, and will hopefully
-finish the test suit next. You can download the gem at
-<a href="http://rubygems.org/gems/weather-icons-rails">Weather Icons Rails</a>,
-and see the source code over on <a href="https://github.com/CodySchaaf/weather-icons-rails">GitHub</a>.</p>
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://CodySchaaf.github.io/blog/2014/05/13/takeaways-from-railsconf-2014/" data-via="@TheCodingCody" data-counturl="http://CodySchaaf.github.io/blog/2014/05/13/takeaways-from-railsconf-2014/" >Tweet</a>
+  
+  
+  
 </div>
-  
-  
 
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/05/12/weather-icons-rails-my-first-ruby-gem/" title="Previous Post: Weather-Icons-Rails: My First Ruby Gem">&laquo; Weather-Icons-Rails: My First Ruby Gem</a>
+      
+      
+    </p>
+  </footer>
+</article>
 
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
 </div>
+
 <aside class="sidebar">
   
     <section>
@@ -1084,7 +1042,7 @@ and see the source code over on <a href="https://github.com/CodySchaaf/weather-i
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating&#8230;</li>
+    <li class="loading">Status updating...</li>
   </ul>
   
   <a href="https://github.com/CodySchaaf">@CodySchaaf</a> on GitHub
@@ -1116,6 +1074,7 @@ and see the source code over on <a href="https://github.com/CodySchaaf/weather-i
 
   
 </aside>
+
 
     </div>
   </div>
