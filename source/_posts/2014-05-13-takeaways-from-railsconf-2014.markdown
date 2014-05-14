@@ -75,16 +75,15 @@ end
 
 As you can see the first long cryptic if statement was easily reduced to a much
 more readable sentence-like method. Further more through this process it became
-clear that the nested if check wasn't even needed. 
+clear that the nested if check wasn't even needed.
 
 ##Polymorphism at its Finest
 
 I had never used polymorphism quite like this before. Instead of constantly checking
-the the object we are dealing with can respond to a method, ensured that all
-object at this point in the code could respond to the method. Now when I put
-it like that it sounds so obvious, I mean isn't that sort of the founding principals
-of polymorphism? But what about when we don't find the object we are looking for.
-Why shouldn't the same concept apply here. This is the idea that was presented to
+that the object we are dealing with can respond to a given method, we simply ensure that all
+objects at this point in the code have some way of responding to it. Now when I put
+it like that it sounds so obvious. But what about when we don't find the object we are looking for.
+Why shouldn't the same concept still apply here. This is the idea that was presented to
 use before we started to takle this next part.
 
 ```ruby 2-special-case-objects https://github.com/tute/refactoring-workshop/blob/master/2-special-case-objects/app.rb Link To Full Source
@@ -133,7 +132,7 @@ end
 
 The basic idea behind this refactoring was to have a subscription object in preform
 that would always be able to respond to the methods called on it. So when
-no subscription would have been returned, instead a nullSubscription which respondes
+null would have originally been returned, instead a `NullSubscription` object which responds
 to these methods is returned. Transforming all of that code to this:
 
 ```ruby My Revision
@@ -155,7 +154,7 @@ end
 
 ```
 
-with a subscription, and nullSubscription defined like this:
+with a `Subscription`, and `NullSubscription` class defined like this:
 
 ```ruby My Revision Classes
 
@@ -208,7 +207,7 @@ end
 
 As you can see last_subscription tries to find your last subscription for you,
 but when it fails it returns a new instance of NullSubscription. Then when `last_subscription.name`
-is called, we get a `'none'` returned if it dosen't exist, or `'Monthly Subscription'` if it does.
+is called, we get `'none'` returned if it dosen't exist, or `'Monthly Subscription'` if it does.
 
 ``` ruby
 
@@ -241,9 +240,10 @@ end
 
 ##We Can Rebuild Him, We Have the Technology
 
-Now for some truly horrific code. This is the code you come up with when you are
-wrestling to get something to work and you just keep throwing lines at it hoping
-something will help. Now it's time to refactor it and make it look like it works as well.
+Now for some truly horrific code. This is the code one comes up with when they are
+wrestling to get something to work and just keep throwing lines at it hoping
+something will stick. Now it's time to refactor it and make it not only work, but
+also have it *look* like it works.
 
 ```ruby 3-replace-method-with-method-object https://github.com/tute/refactoring-workshop/blob/master/3-replace-method-with-method-object/app.rb Full Source Code
 
@@ -388,19 +388,25 @@ end
 ```
 
 There could still be a lot more done here, I mean are you really ever done refactoring?
-But I think this grasps the idea, where you want to make use of instance variables
-to allow for the method to be broken up without having to pass huge amounts of
-variables. It is useful to find the variables that are inherent to the class itself.
+But I think this grasps some of the main ideas. You want to make use of instance variables
+to allow for the method to be broken up without having to pass lists of
+variables from method to method. It is useful to find the variables that are inherent to the class itself.
 Make those your instance variables. From there your goal is simpler, you need to
-basically construct these variables to some final product. There is still a lot going
-on here, but it definitely looks slightly less overwhelming when looking at manageable chuncks.
+basically construct these variables to some final product, one chunk at a time. There is still a lot going
+on here, but it definitely looks slightly less overwhelming when looking at manageable chunks.
+
+The best part is that you now have a `FormatAtoB` class that can go in its own file. You shouldn't have to add much to this file
+in the future since `AtoB` is not likely to change since A should remain A and like wise with B. More importantly
+you have a much cleaner `Formatter` class, now when you need a new format you can add that class to its own file and
+just worry about calling the right one in `Formatter`. Now each class has a (single responsibility)[http://en.wikipedia.org/wiki/Single_responsibility_principle]
+, and is much less dependent on future changes making your code much more (SOLID)[http://en.wikipedia.org/wiki/Solid_(object-oriented_design)].
 
 
 ##Getting the User Into Shape
 
-For this last part, I need you to imagine a massive user model. This refactoring
-on its own may seem like it is making it more complicated, but when you realize
-you are moving all of this code out of a bloated class it makes more sense.
+For this last part, I need one to imagine a massive user model. This refactoring
+on its own may seem like it is making it more complicated, but when one realizes
+that they are moving all of this code out of a bloated class it makes more sense.
 
 ```ruby 4-service-objects https://github.com/tute/refactoring-workshop/blob/master/4-service-objects/app.rb Full Source Code
 
@@ -444,12 +450,12 @@ end
 ```
 
 Now all of this code really should be part of some subscription class, but since it
-depends on the user it seems to have just been crammed into this code.  It doesn't
-look like much, but remember this is a user model that would have hundred of other
-lines of code, likely with more examples of logic that needs to be moved. To move this
-code out though you are going to need pass along the user. Originally I wanted to make
-a instance variable called user and pass him into the initialization, but I found out
-that there is a slightly sexier way to go about it through the use of a struct.
+depends on the user it seems to have just been crammed into this model. It doesn't
+look like much, but remember this is a user model that typically has hundreds of other
+lines of code, likely with more examples of logic that need to be moved out as well.
+To move this code out though you are going to need pass along the user. Originally I wanted to make
+an instance variable called user and pass him into the initialization, but I found out
+that there is a slightly sexier way to go about it through the use of a `Struct`.
 
 ```ruby Tute Costa's Solution https://github.com/tute/refactoring-workshop/blob/tute-solutions/4-service-objects/app-solution-tute.rb Full Source Code
 
@@ -505,15 +511,19 @@ end
 ```
 
 This allows us to simply pass the user into `SubscriptionService.new(self)` and
-from there we can call user instead of self. This really cleans up the user model.
-Also we make sure to call subscription_service were a new instance is created only
-if it is needed.
+from there we call user instead of self to get the desired results.
+This really cleans up the user model. I also want to point out how through
+the use of `@subscription_service ||= SubscriptionService.new(self)` we ensure
+that a new instance is only created if we need it. We didn't even change the users
+API since it still has a suscribe and unsubscribe method, they just employ the
+`subscription_service` class. This means that all of our original tests should
+be completely unaffected.
 
 ##Summary
 
 In summary the biggest favor you can do yourself before refactoring is to make sure
 you have a comprehensive test suit. Once that is in place you are able to freely change
 code without having to worry about secretly breaking functionality. To give this a try
-for yourself visit fork the repository here `https://github.com/tute/refactoring-workshop`,
+for yourself fork the repository here `https://github.com/tute/refactoring-workshop`,
 and refactor away. Run the tests suit to ensure you didn't break anything. Good luck, and happy
 coding.
