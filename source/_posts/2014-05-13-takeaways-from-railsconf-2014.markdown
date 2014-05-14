@@ -6,21 +6,22 @@ comments: true
 categories:
 ---
 
-Once everyone got passed the 'The Death To TDD' hysteria, this years big
-most influential talks all seemed to focus heavily on refactoring. This was
+Once everyone got passed the 'The Death To TDD' hysteria, this years
+most influential talks focused heavily on refactoring. This was
 my first Rails conference, and while I have alway attempted to write maintainable
 and clean code, I was always a little gun-shy when it came to massive refactoring.
+When do you break something into a new class, and when is a method too long?
 
 Starting a little simpler, one of my favorite talks was actually a workshop
 on day one. It was with [Tute Costa](http://tutecosta.com/), where he took us
 through some short examples of some really chaotic code, and after giving us
-a few pointers set us loose on refactoring it.
+a few pointers, he set us loose on refactoring it.
 
 ##Taming the Flow of Control
 
 We started out with one of my favorite refactoring techniques, mostly because
-it is so simple and the least disrupting of the refactoring techniques. This is
-the code he gave us:
+it is so simple and the least disrupting of the refactoring techniques yet can
+still make a huge difference in readability. This is the code he gave us:
 
 ```ruby 1-intention-revealing-method https://github.com/tute/refactoring-workshop/blob/master/1-intention-revealing-method/app.rb Link To Full Source
 
@@ -43,8 +44,9 @@ end
 
 ```
 
-And told us that a simple technique he uses is to just take the comment, and
-convert it into the method name that is called by the if statement.
+He told us that a simple technique he uses is to just take the comment, and
+convert it into the method name that is called by the if statement. Here is what
+I did:
 
 ```ruby My Revision
 
@@ -73,7 +75,7 @@ end
 
 As you can see the first long cryptic if statement was easily reduced to a much
 more readable sentence-like method. Further more through this process it became
-that the nested if check wasn't even needed.
+clear that the nested if check wasn't even needed. 
 
 ##Polymorphism at its Finest
 
@@ -208,7 +210,7 @@ As you can see last_subscription tries to find your last subscription for you,
 but when it fails it returns a new instance of NullSubscription. Then when `last_subscription.name`
 is called, we get a `'none'` returned if it dosen't exist, or `'Monthly Subscription'` if it does.
 
-``` ruby 
+``` ruby
 
 users[user.name] = {
   name: last_subscription.name, # => 'none' or Monthly Subscription
