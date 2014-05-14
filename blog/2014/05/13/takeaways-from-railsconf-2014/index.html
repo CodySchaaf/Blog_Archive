@@ -199,11 +199,10 @@ clear that the nested if check wasn&rsquo;t even needed.</p>
 <h2>Polymorphism at its Finest</h2>
 
 <p>I had never used polymorphism quite like this before. Instead of constantly checking
-the the object we are dealing with can respond to a method, ensured that all
-object at this point in the code could respond to the method. Now when I put
-it like that it sounds so obvious, I mean isn&rsquo;t that sort of the founding principals
-of polymorphism? But what about when we don&rsquo;t find the object we are looking for.
-Why shouldn&rsquo;t the same concept apply here. This is the idea that was presented to
+that the object we are dealing with can respond to a given method, we simply ensure that all
+objects at this point in the code have some way of responding to it. Now when I put
+it like that it sounds so obvious. But what about when we don&rsquo;t find the object we are looking for.
+Why shouldn&rsquo;t the same concept still apply here. This is the idea that was presented to
 use before we started to takle this next part.</p>
 
 <figure class='code'><figcaption><span>2-special-case-objects</span><a href='https://github.com/tute/refactoring-workshop/blob/master/2-special-case-objects/app.rb'>Link To Full Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -289,7 +288,7 @@ use before we started to takle this next part.</p>
 
 <p>The basic idea behind this refactoring was to have a subscription object in preform
 that would always be able to respond to the methods called on it. So when
-no subscription would have been returned, instead a nullSubscription which respondes
+null would have originally been returned, instead a <code>NullSubscription</code> object which responds
 to these methods is returned. Transforming all of that code to this:</p>
 
 <figure class='code'><figcaption><span>My Revision</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -323,7 +322,7 @@ to these methods is returned. Transforming all of that code to this:</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>with a subscription, and nullSubscription defined like this:</p>
+<p>with a <code>Subscription</code>, and <code>NullSubscription</code> class defined like this:</p>
 
 <figure class='code'><figcaption><span>My Revision Classes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -418,7 +417,7 @@ to these methods is returned. Transforming all of that code to this:</p>
 
 <p>As you can see last_subscription tries to find your last subscription for you,
 but when it fails it returns a new instance of NullSubscription. Then when <code>last_subscription.name</code>
-is called, we get a <code>'none'</code> returned if it dosen&rsquo;t exist, or <code>'Monthly Subscription'</code> if it does.</p>
+is called, we get <code>'none'</code> returned if it dosen&rsquo;t exist, or <code>'Monthly Subscription'</code> if it does.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -473,9 +472,10 @@ is called, we get a <code>'none'</code> returned if it dosen&rsquo;t exist, or <
 
 <h2>We Can Rebuild Him, We Have the Technology</h2>
 
-<p>Now for some truly horrific code. This is the code you come up with when you are
-wrestling to get something to work and you just keep throwing lines at it hoping
-something will help. Now it&rsquo;s time to refactor it and make it look like it works as well.</p>
+<p>Now for some truly horrific code. This is the code one comes up with when they are
+wrestling to get something to work and just keep throwing lines at it hoping
+something will stick. Now it&rsquo;s time to refactor it and make it not only work, but
+also have it <em>look</em> like it works.</p>
 
 <figure class='code'><figcaption><span>3-replace-method-with-method-object</span><a href='https://github.com/tute/refactoring-workshop/blob/master/3-replace-method-with-method-object/app.rb'>Full Source Code</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -745,18 +745,24 @@ my best but his solution was a little more elagent so I&rsquo;ve decided to use 
 
 
 <p>There could still be a lot more done here, I mean are you really ever done refactoring?
-But I think this grasps the idea, where you want to make use of instance variables
-to allow for the method to be broken up without having to pass huge amounts of
-variables. It is useful to find the variables that are inherent to the class itself.
+But I think this grasps some of the main ideas. You want to make use of instance variables
+to allow for the method to be broken up without having to pass lists of
+variables from method to method. It is useful to find the variables that are inherent to the class itself.
 Make those your instance variables. From there your goal is simpler, you need to
-basically construct these variables to some final product. There is still a lot going
-on here, but it definitely looks slightly less overwhelming when looking at manageable chuncks.</p>
+basically construct these variables to some final product, one chunk at a time. There is still a lot going
+on here, but it definitely looks slightly less overwhelming when looking at manageable chunks.</p>
+
+<p>The best part is that you now have a <code>FormatAtoB</code> class that can go in its own file. You shouldn&rsquo;t have to add much to this file
+in the future since <code>AtoB</code> is not likely to change since A should remain A and like wise with B. More importantly
+you have a much cleaner <code>Formatter</code> class, now when you need a new format you can add that class to its own file and
+just worry about calling the right one in <code>Formatter</code>. Now each class has a (single responsibility)[<a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">http://en.wikipedia.org/wiki/Single_responsibility_principle</a>]
+, and is much less dependent on future changes making your code much more (SOLID)[<a href="http://en.wikipedia.org/wiki/Solid_">http://en.wikipedia.org/wiki/Solid_</a>(object-oriented_design)].</p>
 
 <h2>Getting the User Into Shape</h2>
 
-<p>For this last part, I need you to imagine a massive user model. This refactoring
-on its own may seem like it is making it more complicated, but when you realize
-you are moving all of this code out of a bloated class it makes more sense.</p>
+<p>For this last part, I need one to imagine a massive user model. This refactoring
+on its own may seem like it is making it more complicated, but when one realizes
+that they are moving all of this code out of a bloated class it makes more sense.</p>
 
 <figure class='code'><figcaption><span>4-service-objects</span><a href='https://github.com/tute/refactoring-workshop/blob/master/4-service-objects/app.rb'>Full Source Code</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -834,12 +840,12 @@ you are moving all of this code out of a bloated class it makes more sense.</p>
 
 
 <p>Now all of this code really should be part of some subscription class, but since it
-depends on the user it seems to have just been crammed into this code.  It doesn&rsquo;t
-look like much, but remember this is a user model that would have hundred of other
-lines of code, likely with more examples of logic that needs to be moved. To move this
-code out though you are going to need pass along the user. Originally I wanted to make
-a instance variable called user and pass him into the initialization, but I found out
-that there is a slightly sexier way to go about it through the use of a struct.</p>
+depends on the user it seems to have just been crammed into this model. It doesn&rsquo;t
+look like much, but remember this is a user model that typically has hundreds of other
+lines of code, likely with more examples of logic that need to be moved out as well.
+To move this code out though you are going to need pass along the user. Originally I wanted to make
+an instance variable called user and pass him into the initialization, but I found out
+that there is a slightly sexier way to go about it through the use of a <code>Struct</code>.</p>
 
 <figure class='code'><figcaption><span>Tute Costa&#8217;s Solution</span><a href='https://github.com/tute/refactoring-workshop/blob/tute-solutions/4-service-objects/app-solution-tute.rb'>Full Source Code</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -941,16 +947,20 @@ that there is a slightly sexier way to go about it through the use of a struct.<
 
 
 <p>This allows us to simply pass the user into <code>SubscriptionService.new(self)</code> and
-from there we can call user instead of self. This really cleans up the user model.
-Also we make sure to call subscription_service were a new instance is created only
-if it is needed.</p>
+from there we call user instead of self to get the desired results.
+This really cleans up the user model. I also want to point out how through
+the use of <code>@subscription_service ||= SubscriptionService.new(self)</code> we ensure
+that a new instance is only created if we need it. We didn&rsquo;t even change the users
+API since it still has a suscribe and unsubscribe method, they just employ the
+<code>subscription_service</code> class. This means that all of our original tests should
+be completely unaffected.</p>
 
 <h2>Summary</h2>
 
 <p>In summary the biggest favor you can do yourself before refactoring is to make sure
 you have a comprehensive test suit. Once that is in place you are able to freely change
 code without having to worry about secretly breaking functionality. To give this a try
-for yourself visit fork the repository here <code>https://github.com/tute/refactoring-workshop</code>,
+for yourself fork the repository here <code>https://github.com/tute/refactoring-workshop</code>,
 and refactor away. Run the tests suit to ensure you didn&rsquo;t break anything. Good luck, and happy
 coding.</p>
 </div>
