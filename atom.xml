@@ -4,7 +4,7 @@
   <title><![CDATA[Coding With Cody]]></title>
   <link href="http://CodySchaaf.github.io/atom.xml" rel="self"/>
   <link href="http://CodySchaaf.github.io/"/>
-  <updated>2014-05-13T14:03:01-07:00</updated>
+  <updated>2014-05-14T10:35:14-07:00</updated>
   <id>http://CodySchaaf.github.io/</id>
   <author>
     <name><![CDATA[Cody Schaaf]]></name>
@@ -18,21 +18,22 @@
     <link href="http://CodySchaaf.github.io/blog/2014/05/13/takeaways-from-railsconf-2014/"/>
     <updated>2014-05-13T13:27:11-07:00</updated>
     <id>http://CodySchaaf.github.io/blog/2014/05/13/takeaways-from-railsconf-2014</id>
-    <content type="html"><![CDATA[<p>Once everyone got passed the &lsquo;The Death To TDD&rsquo; hysteria, this years big
-most influential talks all seemed to focus heavily on refactoring. This was
+    <content type="html"><![CDATA[<p>Once everyone got passed the &lsquo;The Death To TDD&rsquo; hysteria, this years
+most influential talks focused heavily on refactoring. This was
 my first Rails conference, and while I have alway attempted to write maintainable
-and clean code, I was always a little gun-shy when it came to massive refactoring.</p>
+and clean code, I was always a little gun-shy when it came to massive refactoring.
+When do you break something into a new class, and when is a method too long?</p>
 
 <p>Starting a little simpler, one of my favorite talks was actually a workshop
 on day one. It was with <a href="http://tutecosta.com/">Tute Costa</a>, where he took us
 through some short examples of some really chaotic code, and after giving us
-a few pointers set us loose on refactoring it.</p>
+a few pointers, he set us loose on refactoring it.</p>
 
 <h2>Taming the Flow of Control</h2>
 
 <p>We started out with one of my favorite refactoring techniques, mostly because
-it is so simple and the least disrupting of the refactoring techniques. This is
-the code he gave us:</p>
+it is so simple and the least disrupting of the refactoring techniques yet can
+still make a huge difference in readability. This is the code he gave us:</p>
 
 <figure class='code'><figcaption><span>1-intention-revealing-method</span><a href='https://github.com/tute/refactoring-workshop/blob/master/1-intention-revealing-method/app.rb'>Link To Full Source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -69,8 +70,9 @@ the code he gave us:</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>And told us that a simple technique he uses is to just take the comment, and
-convert it into the method name that is called by the if statement.</p>
+<p>He told us that a simple technique he uses is to just take the comment, and
+convert it into the method name that is called by the if statement. Here is what
+I did:</p>
 
 <figure class='code'><figcaption><span>My Revision</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -117,7 +119,7 @@ convert it into the method name that is called by the if statement.</p>
 
 <p>As you can see the first long cryptic if statement was easily reduced to a much
 more readable sentence-like method. Further more through this process it became
-that the nested if check wasn&rsquo;t even needed.</p>
+clear that the nested if check wasn&rsquo;t even needed.</p>
 
 <h2>Polymorphism at its Finest</h2>
 
