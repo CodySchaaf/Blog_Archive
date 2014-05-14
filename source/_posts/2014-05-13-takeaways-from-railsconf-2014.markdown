@@ -398,8 +398,8 @@ on here, but it definitely looks slightly less overwhelming when looking at mana
 The best part is that you now have a `FormatAtoB` class that can go in its own file. You shouldn't have to add much to this file
 in the future since `AtoB` is not likely to change since A should remain A and like wise with B. More importantly
 you have a much cleaner `Formatter` class, now when you need a new format you can add that class to its own file and
-just worry about calling the right one in `Formatter`. Now each class has a (single responsibility)[http://en.wikipedia.org/wiki/Single_responsibility_principle]
-, and is much less dependent on future changes making your code much more (SOLID)[http://en.wikipedia.org/wiki/Solid_(object-oriented_design)].
+just worry about calling the right one in `Formatter`. Now each class has a [single responsibility](http://en.wikipedia.org/wiki/Single_responsibility_principle)
+, and is much less dependent on future changes making your code much more [SOLID](http://en.wikipedia.org/wiki/Solid_(object-oriented_design)).
 
 
 ##Getting the User Into Shape
